@@ -53,22 +53,6 @@ int build_database(char* filename, map<int, map<string, int> > &freq_map, map<in
 					freq_map[label_index][question_vec[k]] = 1;
 				}
 			}
-			/*
-			if (newlabelFlag){
-				freq_map[label_index] = new map<string, int>();
-			}
-			map<string, int> cur_label_map = *(freq_map[label_index]);
-			for(int k = 0; k < question_vec.size(); k++){
-				if (cur_label_map.find(question_vec[k]) != cur_label_map.end()){
-					cur_label_map[question_vec[k]] += 1;
-				}
-				else{
-					cur_label_map[question_vec[k]] = 1;
-				}
-			}
-			cout << cur_label_map.size() << endl;
-			*/
-			
 		}
 	}
 	return 1;
