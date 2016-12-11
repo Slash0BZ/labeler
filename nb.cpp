@@ -24,8 +24,9 @@ vector<string> split_by_space(string in){
 void processQuestionString(string &q){
 	for(int i = 0; i < q.length(); i++){
 		//if (q[i] == '?' || q[i] == '\'' || q[i] == ',' || q[i] == '/'){
-		if (q[i] == '?'){
+		if (q[i] == '\'' && q[i+1] == 's'){
 			q[i] = ' ';
+			q[i+1] = ' ';
 		}
 	}
 	int lastNonSpace = q.length() - 1;
@@ -56,7 +57,7 @@ int build_database(char* filename, map<int, map<string, int> > &freq_map, map<in
 		getline(input, label);
 		getline(input, question);
 
-		//processQuestionString(question);
+		processQuestionString(question);
 
 		vector<string> label_vec = split_by_space(label);
 		vector<string> question_vec = split_by_space(question);	
@@ -119,10 +120,9 @@ int main(int argc, char** argv){
 			double bias_up = bias * labelCount / (double)total_sample;	
 			double wordProb = log(labelCount / (double)total_sample);
 			for(int j = 0; j < curvec.size(); j++){
-				//double prob_cur_word = ((double)(curfreq[curvec[j]]) + bias_up) / (labelCount + bias);
 				auto pos = curfreq.find(curvec[j]);
 				if (pos != curfreq.end()){
-					double prob_cur_word = ((double)(pos->second) + 1) / (labelCount + bias);
+					double prob_cur_word = ((double)(pos->second) + 1) / (labelCount + bias + 1);
 					wordProb += log(prob_cur_word);
 				}
 				else{
