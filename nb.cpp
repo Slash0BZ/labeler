@@ -95,9 +95,11 @@ int main(int argc, char** argv){
 			map<string, int> curfreq= freq_map[label];
 			double labelCount = (double)count_map[label];
 			double bias_up = bias * labelCount / (double)total_sample;	
-			double wordProb = labelCount / (double)total_sample;
+			//double wordProb = labelCount / (double)total_sample;
+			double wordProb = 1;
 			for(int j = 0; j < curvec.size(); j++){
-				double prob_cur_word = ((double)(curfreq[curvec[j]]) + bias_up) / (labelCount + bias);
+				//double prob_cur_word = ((double)(curfreq[curvec[j]]) + bias_up) / (labelCount + bias);
+				double prob_cur_word = ((double)(curfreq[curvec[j]]) + 1) / (labelCount + bias);
 				wordProb *= prob_cur_word;
 			}
 			prob_pair.push_back(make_pair(label, wordProb));
