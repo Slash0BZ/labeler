@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cmath>
 using namespace std;
 vector<string> split_by_space(string in){
 	int base = 0;
@@ -11,11 +12,31 @@ vector<string> split_by_space(string in){
 	for(int i = 0; i < in.length(); i++){
 		if(in[i] == ' '){
 			ret.push_back(in.substr(base, i - base));	
+			while (in[i + 1] == ' '){
+				i++;
+			}
 			base = i + 1;
 		}
 	}
 	ret.push_back(in.substr(base, in.size() - base));
 	return ret;
+}
+void processQuestionString(string &q){
+	for(int i = 0; i < q.length(); i++){
+		//if (q[i] == '?' || q[i] == '\'' || q[i] == ',' || q[i] == '/'){
+		if (q[i] == '?'){
+			q[i] = ' ';
+		}
+	}
+	int lastNonSpace = q.length() - 1;
+	for(; lastNonSpace >= 0; lastNonSpace--){
+		if (q[lastNonSpace] != ' '){
+			break;
+		}
+	}
+	if (lastNonSpace != q.length() - 1){
+		q.erase(lastNonSpace + 1, q.length() - lastNonSpace - 1);
+	}
 }
 int build_database(char* filename, map<int, map<string, int> > &freq_map, map<int, int> &count_map, vector<string> &testinfo, int &total_sample, int &total_test){
 	ifstream input;
@@ -29,12 +50,13 @@ int build_database(char* filename, map<int, map<string, int> > &freq_map, map<in
 	vector<string> infovec = split_by_space(info);
 	total_sample = stoi(infovec[0]);
 	total_test = stoi(infovec[1]);
-	cout << total_test << endl;
 	for(int i = 0; i < total_sample; i++){
 		string label;
 		string question;
 		getline(input, label);
 		getline(input, question);
+
+		//processQuestionString(question);
 
 		vector<string> label_vec = split_by_space(label);
 		vector<string> question_vec = split_by_space(question);	
@@ -95,18 +117,25 @@ int main(int argc, char** argv){
 			map<string, int> curfreq= freq_map[label];
 			double labelCount = (double)count_map[label];
 			double bias_up = bias * labelCount / (double)total_sample;	
-			//double wordProb = labelCount / (double)total_sample;
-			double wordProb = 1;
+			double wordProb = log(labelCount / (double)total_sample);
 			for(int j = 0; j < curvec.size(); j++){
 				//double prob_cur_word = ((double)(curfreq[curvec[j]]) + bias_up) / (labelCount + bias);
-				double prob_cur_word = ((double)(curfreq[curvec[j]]) + 1) / (labelCount + bias);
-				wordProb *= prob_cur_word;
+				auto pos = curfreq.find(curvec[j]);
+				if (pos != curfreq.end()){
+					double prob_cur_word = ((double)(pos->second) + 1) / (labelCount + bias);
+					wordProb += log(prob_cur_word);
+				}
+				else{
+					double prob_cur_word = 1 / (labelCount + bias);
+					wordProb += log(prob_cur_word);
+				}
 			}
 			prob_pair.push_back(make_pair(label, wordProb));
 		}
 		sort(prob_pair.begin(), prob_pair.end(), pair_comparator);
 
-		for(int oi = 0; oi < 5; oi++){
+		for(int oi = 0; oi < 10; oi++){
+			//output << prob_pair[oi].first << ": " << prob_pair[oi].second << "; ";
 			output << prob_pair[oi].first;
 			if (oi != 4)
 				output << " ";
