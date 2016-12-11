@@ -14,9 +14,10 @@ vector<string> split_by_space(string in){
 			base = i + 1;
 		}
 	}
+	ret.push_back(in.substr(base, in.size() - base));
 	return ret;
 }
-int build_database(char* filename, map<int, map<string, int> > &freq_map, map<int, int> &count_map){
+int build_database(char* filename, map<int, map<string, int> > &freq_map, map<int, int> &count_map, vector<string> &testinfo, int &total_sample, int &total_test){
 	ifstream input;
 	input.open(filename);
 	if (!input.is_open()){
@@ -26,8 +27,9 @@ int build_database(char* filename, map<int, map<string, int> > &freq_map, map<in
 	string info;
 	getline(input, info);
 	vector<string> infovec = split_by_space(info);
-	int total_sample = stoi(infovec[0]);
-
+	total_sample = stoi(infovec[0]);
+	total_test = stoi(infovec[1]);
+	cout << total_test << endl;
 	for(int i = 0; i < total_sample; i++){
 		string label;
 		string question;
@@ -55,6 +57,11 @@ int build_database(char* filename, map<int, map<string, int> > &freq_map, map<in
 			}
 		}
 	}
+	for(int i = 0; i < total_test; i++){
+		string curtest;	
+		getline(input, curtest);
+		testinfo.push_back(curtest);
+	}
 	return 1;
 }
 int main(int argc, char** argv){
@@ -67,12 +74,25 @@ int main(int argc, char** argv){
 	
 	map<int, map<string, int> > freq_map;
 	map<int, int> count_map;
-	if (!build_database(input_file_name, freq_map, count_map)){
+	vector<string> testinfo;
+	int total_sample, total_test;
+	if (!build_database(input_file_name, freq_map, count_map, testinfo, total_sample, total_test)){
 		return 1;
 	}
-	cout << count_map.size() << endl;
-	cout << freq_map[4].size() << endl;
-
+	double bias = (double)count_map.size();
+	for(int i = 0; i < total_test; i++){
+		vector<string> curvec = split_by_space(testinfo[i]);
+		map<int, double> prob_map;
+		for(auto it = count_map.begin(); it != count_map.end(); it++){
+			int label = it->first;
+			map<string, int> curfreq= freq_map[label];
+			double bias_up = bias * (double)count_map[label] / (double)total_sample;	
+			for(int j = 0; j < curvec.size(); j++){
+				double prob_cur_word = (double)prob
+			}
+			
+		}
+	}
 
 
 	return 0;
