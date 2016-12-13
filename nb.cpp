@@ -39,6 +39,12 @@ void processQuestionString(string &q){
 		q.erase(lastNonSpace + 1, q.length() - lastNonSpace - 1);
 	}
 }
+string getSegment(int index, int size){
+	int segments = 3;
+	int segmentSize = size / 3;
+	int segment = segmentSize != 0 ? index / segmentSize : 0;
+	return to_string(segment);
+}
 int build_database(char* filename, map<int, map<string, int> > &freq_map, map<int, int> &count_map, vector<string> &testinfo, int &total_sample, int &total_test){
 	ifstream input;
 	input.open(filename);
@@ -71,11 +77,13 @@ int build_database(char* filename, map<int, map<string, int> > &freq_map, map<in
 				count_map[label_index] = 1;
 			}
 			for(int k = 0; k < question_vec.size(); k++){
-				if (freq_map[label_index].find(question_vec[k]) != freq_map[label_index].end()){
-					freq_map[label_index][question_vec[k]] += 1;
+				string segment = getSegment(k, question_vec.size());
+				string curWord = question_vec[k];
+				if (freq_map[label_index].find(curWord) != freq_map[label_index].end()){
+					freq_map[label_index][curWord] += 1;
 				}
 				else{
-					freq_map[label_index][question_vec[k]] = 1;
+					freq_map[label_index][curWord] = 1;
 				}
 			}
 		}
@@ -120,7 +128,8 @@ int main(int argc, char** argv){
 			double bias_up = bias * labelCount / (double)total_sample;	
 			double wordProb = log(labelCount / (double)total_sample);
 			for(int j = 0; j < curvec.size(); j++){
-				auto pos = curfreq.find(curvec[j]);
+				string curWord = curvec[j];
+				auto pos = curfreq.find(curWord);
 				if (pos != curfreq.end()){
 					double prob_cur_word = ((double)(pos->second) + 1) / (labelCount + bias + 1);
 					wordProb += log(prob_cur_word);
